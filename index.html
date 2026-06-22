@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculateur de Calories</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=Inter:wght@400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --black: #0D0D0D;
+    --white: #FFFFFF;
+    --lime: #C8F135;
+    --lime-dark: #A8CC1A;
+    --gray-100: #F5F5F5;
+    --gray-200: #E8E8E8;
+    --gray-400: #9A9A9A;
+    --gray-700: #3A3A3A;
+    --red: #E5302D;
+    --blue: #2D82E5;
+    --orange: #E57E2D;
+  }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 24px 16px 48px;
+  }
+
+  .card {
+    background: #161616;
+    border: 1px solid #2A2A2A;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 480px;
+    overflow: hidden;
+  }
+
+  /* HEADER */
+  .card-header {
+    background: var(--lime);
+    padding: 28px 24px 24px;
+  }
+
+  .card-header h1 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    font-size: 38px;
+    line-height: 1.0;
+    text-transform: uppercase;
+    color: var(--black);
+    letter-spacing: -0.5px;
+  }
+
+  .card-header h1 span {
+    display: block;
+    font-size: 16px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    text-transform: none;
+    letter-spacing: 0;
+    margin-top: 6px;
+    color: #3A3A0A;
+    opacity: 0.8;
+  }
+
+  /* FORM BODY */
+  .card-body {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .row-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .field label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--gray-400);
+  }
+
+  .field input,
+  .field select {
+    background: #1E1E1E;
+    border: 1.5px solid #2E2E2E;
+    border-radius: 10px;
+    color: var(--white);
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    padding: 13px 14px;
+    outline: none;
+    transition: border-color 0.15s;
+    width: 100%;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  .field input::placeholder { color: #4A4A4A; }
+
+  .field input:focus,
+  .field select:focus {
+    border-color: var(--lime);
+  }
+
+  .field select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 38px;
+    cursor: pointer;
+  }
+
+  .field select option { background: #1E1E1E; }
+
+  /* SEXE TOGGLE */
+  .sex-toggle {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .sex-btn {
+    background: #1E1E1E;
+    border: 1.5px solid #2E2E2E;
+    border-radius: 10px;
+    color: var(--gray-400);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+  }
+
+  .sex-btn .icon { font-size: 16px; }
+
+  .sex-btn.active {
+    background: var(--lime);
+    border-color: var(--lime);
+    color: var(--black);
+    font-weight: 600;
+  }
+
+  /* DIVIDER */
+  .divider {
+    height: 1px;
+    background: #222;
+    margin: 4px 0;
+  }
+
+  /* BUTTON */
+  .btn-calc {
+    background: var(--lime);
+    color: var(--black);
+    border: none;
+    border-radius: 12px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    font-size: 20px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 16px;
+    width: 100%;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    margin-top: 4px;
+  }
+
+  .btn-calc:hover { background: var(--lime-dark); }
+  .btn-calc:active { transform: scale(0.98); }
+
+  /* RESULTS */
+  .results {
+    display: none;
+    flex-direction: column;
+    gap: 0;
+    border-top: 1px solid #222;
+    margin-top: 4px;
+  }
+
+  .results.visible { display: flex; }
+
+  .results-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--gray-400);
+    padding: 20px 0 12px;
+  }
+
+  .result-main {
+    background: var(--lime);
+    border-radius: 12px;
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  .result-main-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #3A3A0A;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .result-main-label small {
+    display: block;
+    font-size: 11px;
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+    margin-top: 2px;
+    opacity: 0.7;
+  }
+
+  .result-main-value {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    font-size: 44px;
+    color: var(--black);
+    line-height: 1;
+  }
+
+  .result-main-value span {
+    font-size: 16px;
+    font-weight: 600;
+    margin-left: 2px;
+  }
+
+  .result-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+  }
+
+  .result-box {
+    background: #1E1E1E;
+    border: 1px solid #2A2A2A;
+    border-radius: 10px;
+    padding: 12px 10px;
+    text-align: center;
+  }
+
+  .result-box-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--gray-400);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 5px;
+  }
+
+  .result-box-value {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 22px;
+    color: var(--white);
+  }
+
+  .result-box-value span { font-size: 12px; color: var(--gray-400); }
+
+  .result-box.perte .result-box-value { color: var(--blue); }
+  .result-box.maint .result-box-value { color: var(--lime); }
+  .result-box.prise .result-box-value { color: var(--orange); }
+
+  .macros-section {
+    margin-top: 12px;
+  }
+
+  .macros-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--gray-400);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+  }
+
+  .macro-bars { display: flex; flex-direction: column; gap: 8px; }
+
+  .macro-row { display: flex; align-items: center; gap: 10px; }
+
+  .macro-name {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--gray-400);
+    width: 72px;
+    flex-shrink: 0;
+  }
+
+  .macro-bar-wrap {
+    flex: 1;
+    height: 8px;
+    background: #2A2A2A;
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .macro-bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 0.6s cubic-bezier(.4,0,.2,1);
+  }
+
+  .macro-bar-fill.p { background: var(--lime); }
+  .macro-bar-fill.g { background: var(--orange); }
+  .macro-bar-fill.lp { background: var(--blue); }
+
+  .macro-val {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--white);
+    width: 58px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .error-msg {
+    background: #2A0A0A;
+    border: 1px solid var(--red);
+    border-radius: 8px;
+    color: #FF6B6B;
+    font-size: 13px;
+    padding: 10px 14px;
+    display: none;
+  }
+  .error-msg.visible { display: block; }
+
+  /* BMI pill */
+  .bmi-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #1E1E1E;
+    border: 1px solid #2A2A2A;
+    border-radius: 99px;
+    padding: 6px 12px;
+    font-size: 12px;
+    color: var(--gray-400);
+    margin-top: 8px;
+  }
+  .bmi-pill strong { color: var(--white); font-size: 13px; }
+  .bmi-pill .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="card-header">
+    <h1>Calories<br>quotidiennes<span>Besoins énergétiques personnalisés</span></h1>
+  </div>
+
+  <div class="card-body">
+
+    <div class="row-2">
+      <div class="field">
+        <label>Âge (ans)</label>
+        <input type="number" id="age" placeholder="ex. 30" min="10" max="100">
+      </div>
+      <div class="field">
+        <label>Poids (kg)</label>
+        <input type="number" id="poids" placeholder="ex. 75" min="30" max="300" step="0.1">
+      </div>
+    </div>
+
+    <div class="row-2">
+      <div class="field">
+        <label>Sexe</label>
+        <div class="sex-toggle">
+          <button class="sex-btn active" id="btn-homme" onclick="setSexe('homme')">
+            <span class="icon">♂</span> Homme
+          </button>
+          <button class="sex-btn" id="btn-femme" onclick="setSexe('femme')">
+            <span class="icon">♀</span> Femme
+          </button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Taille (cm)</label>
+        <input type="number" id="taille" placeholder="ex. 178" min="100" max="250">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Niveau d'activité</label>
+      <select id="activite">
+        <option value="" disabled selected>Sélectionnez votre niveau</option>
+        <option value="1.2">Sédentaire (peu ou pas d'exercice)</option>
+        <option value="1.375">Légèrement actif (1–3j / semaine)</option>
+        <option value="1.55">Modérément actif (3–5j / semaine)</option>
+        <option value="1.725">Très actif (6–7j / semaine)</option>
+        <option value="1.9">Extrêmement actif (sportif de haut niveau)</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Objectif</label>
+      <select id="objectif">
+        <option value="" disabled selected>Sélectionnez votre objectif</option>
+        <option value="-500">Perte de poids (déficit –500 kcal)</option>
+        <option value="-250">Perte légère (déficit –250 kcal)</option>
+        <option value="0">Maintien du poids</option>
+        <option value="250">Prise de masse légère (+250 kcal)</option>
+        <option value="500">Prise de masse (+500 kcal)</option>
+      </select>
+    </div>
+
+    <div class="error-msg" id="error-msg">⚠ Veuillez remplir tous les champs correctement.</div>
+
+    <button class="btn-calc" onclick="calculer()">Calculer mes besoins</button>
+
+    <div class="results" id="results">
+      <div class="results-title">📊 Vos résultats</div>
+
+      <div class="result-main">
+        <div class="result-main-label">
+          Apport cible
+          <small id="objectif-label">—</small>
+        </div>
+        <div class="result-main-value" id="cal-cible">—<span>kcal</span></div>
+      </div>
+
+      <div class="result-grid">
+        <div class="result-box perte">
+          <div class="result-box-label">Perte</div>
+          <div class="result-box-value" id="cal-perte">—<span>kcal</span></div>
+        </div>
+        <div class="result-box maint">
+          <div class="result-box-label">Maintien</div>
+          <div class="result-box-value" id="cal-maint">—<span>kcal</span></div>
+        </div>
+        <div class="result-box prise">
+          <div class="result-box-label">Prise</div>
+          <div class="result-box-value" id="cal-prise">—<span>kcal</span></div>
+        </div>
+      </div>
+
+      <div id="bmi-wrap" style="margin-top:10px"></div>
+
+      <div class="macros-section">
+        <div class="macros-title">Macronutriments recommandés</div>
+        <div class="macro-bars">
+          <div class="macro-row">
+            <div class="macro-name">Protéines</div>
+            <div class="macro-bar-wrap"><div class="macro-bar-fill p" id="bar-p" style="width:0%"></div></div>
+            <div class="macro-val" id="val-p">—</div>
+          </div>
+          <div class="macro-row">
+            <div class="macro-name">Glucides</div>
+            <div class="macro-bar-wrap"><div class="macro-bar-fill g" id="bar-g" style="width:0%"></div></div>
+            <div class="macro-val" id="val-g">—</div>
+          </div>
+          <div class="macro-row">
+            <div class="macro-name">Lipides</div>
+            <div class="macro-bar-wrap"><div class="macro-bar-fill lp" id="bar-lp" style="width:0%"></div></div>
+            <div class="macro-val" id="val-lp">—</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  let sexe = 'homme';
+
+  function setSexe(s) {
+    sexe = s;
+    document.getElementById('btn-homme').classList.toggle('active', s === 'homme');
+    document.getElementById('btn-femme').classList.toggle('active', s === 'femme');
+  }
+
+  function bmiCategory(bmi) {
+    if (bmi < 18.5) return { label: 'Insuffisance pondérale', color: '#2D82E5' };
+    if (bmi < 25)   return { label: 'Poids normal', color: '#C8F135' };
+    if (bmi < 30)   return { label: 'Surpoids', color: '#E57E2D' };
+    return { label: 'Obésité', color: '#E5302D' };
+  }
+
+  function calculer() {
+    const age     = parseFloat(document.getElementById('age').value);
+    const poids   = parseFloat(document.getElementById('poids').value);
+    const taille  = parseFloat(document.getElementById('taille').value);
+    const activite = parseFloat(document.getElementById('activite').value);
+    const objectifVal = document.getElementById('objectif').value;
+    const errEl   = document.getElementById('error-msg');
+
+    if (!age || !poids || !taille || isNaN(activite) || objectifVal === '') {
+      errEl.classList.add('visible');
+      document.getElementById('results').classList.remove('visible');
+      return;
+    }
+    errEl.classList.remove('visible');
+
+    // Mifflin-St Jeor
+    let bmr;
+    if (sexe === 'homme') {
+      bmr = 10 * poids + 6.25 * taille - 5 * age + 5;
+    } else {
+      bmr = 10 * poids + 6.25 * taille - 5 * age - 161;
+    }
+
+    const tdee    = Math.round(bmr * activite);
+    const cible   = tdee + parseInt(objectifVal);
+    const perte   = tdee - 500;
+    const prise   = tdee + 500;
+
+    // BMI
+    const bmi = (poids / Math.pow(taille / 100, 2)).toFixed(1);
+    const bmiInfo = bmiCategory(parseFloat(bmi));
+
+    // Macros (objectif-specific split)
+    // Protéines: 2g/kg, glucides: ~50%, lipides: reste
+    const prot_g  = Math.round(poids * 2);
+    const prot_kcal = prot_g * 4;
+    const lip_g   = Math.round(cible * 0.25 / 9);
+    const lip_kcal = lip_g * 9;
+    const gluc_kcal = Math.max(0, cible - prot_kcal - lip_kcal);
+    const gluc_g  = Math.round(gluc_kcal / 4);
+
+    const maxMacro = Math.max(prot_g, gluc_g, lip_g);
+
+    document.getElementById('cal-cible').innerHTML = `${cible}<span>kcal</span>`;
+    document.getElementById('cal-maint').innerHTML = `${tdee}<span>kcal</span>`;
+    document.getElementById('cal-perte').innerHTML = `${perte}<span>kcal</span>`;
+    document.getElementById('cal-prise').innerHTML = `${prise}<span>kcal</span>`;
+
+    const labels = {
+      '-500': 'Perte de poids',
+      '-250': 'Perte légère',
+      '0':    'Maintien',
+      '250':  'Prise légère',
+      '500':  'Prise de masse'
+    };
+    document.getElementById('objectif-label').textContent = labels[objectifVal] || '';
+
+    document.getElementById('bmi-wrap').innerHTML = `
+      <div class="bmi-pill">
+        <span class="dot" style="background:${bmiInfo.color}"></span>
+        IMC : <strong>${bmi}</strong> — ${bmiInfo.label}
+      </div>`;
+
+    document.getElementById('val-p').textContent  = `${prot_g} g`;
+    document.getElementById('val-g').textContent  = `${gluc_g} g`;
+    document.getElementById('val-lp').textContent = `${lip_g} g`;
+
+    setTimeout(() => {
+      document.getElementById('bar-p').style.width  = (prot_g / maxMacro * 100) + '%';
+      document.getElementById('bar-g').style.width  = (gluc_g / maxMacro * 100) + '%';
+      document.getElementById('bar-lp').style.width = (lip_g  / maxMacro * 100) + '%';
+    }, 50);
+
+    document.getElementById('results').classList.add('visible');
+    document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+</script>
+</body>
+</html>
